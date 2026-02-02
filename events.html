@@ -45,52 +45,24 @@
     </div>
 
     <main class="page">
-        <div class="next-event-container">
-            <div class="next-event-minimal">
-                <div class="question-mark">?</div>
-                <div class="event-date">13 Febbraio 2026</div>
-                <div class="event-city">Milano</div>
-            </div>
+        <div class="manifesto-container">
+            <img src="branding/Use For Website/next event.png" alt="Le Amicizie" class="manifesto-image">
         </div>
     </main>
 
     <style>
-        .next-event-container {
+        .manifesto-container {
             min-height: calc(100vh - 100px);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: var(--space-lg);
+            padding: var(--space-xl);
         }
 
-        .next-event-minimal {
-            text-align: center;
-        }
-
-        .question-mark {
-            font-family: var(--font-display);
-            font-size: 8rem;
-            font-weight: 300;
-            color: var(--metal-mid);
-            line-height: 1;
-            margin-bottom: var(--space-lg);
-            opacity: 0.6;
-        }
-
-        .event-date {
-            font-family: var(--font-display);
-            font-size: var(--text-xl);
-            letter-spacing: 0.2em;
-            color: var(--text);
-            margin-bottom: var(--space-sm);
-        }
-
-        .event-city {
-            font-family: var(--font-body);
-            font-size: var(--text-base);
-            color: var(--text-muted);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+        .manifesto-image {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
         }
     </style>
 
