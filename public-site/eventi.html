@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Eventi esclusivi di Fiori Oscuri">
+    <title>Eventi - Fiori Oscuri</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="rose-icon">🥀</span>
+                <span>Fiori Oscuri</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="eventi.html" class="active">Eventi</a></li>
+                <li><a href="manifesto.html">Manifesto</a></li>
+                <li><a href="contatti.html">Contatti</a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container-narrow">
+            <h1>Eventi</h1>
+            <p class="page-subtitle">Esperienze esclusive per anime affini</p>
+        </div>
+    </section>
+
+    <!-- Events List -->
+    <section>
+        <div class="container">
+            <div id="events-container" class="events-grid">
+                <div class="loading">Caricamento eventi...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Fiori Oscuri &mdash; Since 2026</p>
+            <p style="font-size: 0.8rem; margin-top: var(--spacing-sm);">
+                Solo su invito · Milano
+            </p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        import { SUPABASE_CONFIG } from '../config.js';
+
+        const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        const eventsContainer = document.getElementById('events-container');
+
+        // Mobile menu toggle
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        navToggle?.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        });
+
+        // Load events
+        async function loadEvents() {
+            try {
+                const { data: events, error } = await supabase
+                    .from('events')
+                    .select('*')
+                    .order('event_date', { ascending: true });
+
+                if (error) throw error;
+
+                if (!events || events.length === 0) {
+                    eventsContainer.innerHTML = `
+            <div class="no-events">
+              <p style="font-style: italic; color: var(--color-text-light);">
+                Nessun evento in programma al momento.<br>
+                Resta in attesa. Qualcosa di speciale sta per accadere.
+              </p>
+            </div>
+          `;
+                    return;
+                }
+
+                eventsContainer.innerHTML = events.map(event => {
+                    const eventDate = new Date(event.event_date);
+                    const dateStr = eventDate.toLocaleDateString('it-IT', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                    const timeStr = eventDate.toLocaleTimeString('it-IT', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    return `
+            <div class="event-card fade-in">
+              ${event.image_url ? `<img src="${event.image_url}" alt="${event.title}" class="event-image">` : ''}
+              <h2 class="event-title">${event.title}</h2>
+              <div class="event-meta">
+                <span>📅 ${dateStr}</span>
+                <span>🕐 ${timeStr}</span>
+                <span>📍 ${event.location}</span>
+              </div>
+              <p class="event-description">${event.description || ''}</p>
+              <a href="event.html?id=${event.id}" class="btn" style="margin-top: var(--spacing-md);">
+                Dettagli Evento
+              </a>
+            </div>
+          `;
+                }).join('');
+
+                // Trigger fade-in animation
+                setTimeout(() => {
+                    document.querySelectorAll('.event-card').forEach((card, index) => {
+                        setTimeout(() => card.classList.add('visible'), index * 100);
+                    });
+                }, 100);
+
+            } catch (error) {
+                console.error('Error loading events:', error);
+                eventsContainer.innerHTML = `
+          <div class="error-message">
+            <p>Si è verificato un errore nel caricamento degli eventi.</p>
+          </div>
+        `;
+            }
+        }
+
+        loadEvents();
+    </script>
+
+</body>
+
+</html>

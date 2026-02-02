@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Utente - Fiori Oscuri Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri"
+                    class="sidebar-logo">
+                <span class="sidebar-title">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">◈</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="users.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">☾</span>
+                    <span>Utenti</span>
+                </a>
+                <a href="events.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">✦</span>
+                    <span>Eventi</span>
+                </a>
+                <a href="flowers.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">❀</span>
+                    <span>Fiori</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../index.html">← Torna al sito</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <a href="users.html" style="color: var(--text-muted); font-size: var(--text-sm);">← Torna agli
+                        utenti</a>
+                    <h1 class="page-title" id="page-title">Caricamento...</h1>
+                </div>
+            </header>
+
+            <!-- Profile Header -->
+            <div class="profile-header" id="profile-header">
+                <div class="profile-avatar" id="profile-avatar">?</div>
+                <div class="profile-info">
+                    <h2 class="profile-name" id="profile-name">Caricamento...</h2>
+                    <p class="profile-email" id="profile-email">...</p>
+
+                    <div class="profile-stats">
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="stat-flowers">0</div>
+                            <div class="profile-stat-label">Fiori</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="stat-wilted">0</div>
+                            <div class="profile-stat-label">Appassiti</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="stat-events">0</div>
+                            <div class="profile-stat-label">Eventi</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="profile-stat-value" id="stat-invites">0</div>
+                            <div class="profile-stat-label">Inviti</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button class="btn btn-primary" onclick="handleAddFlower()">+ Aggiungi Fiore</button>
+                        <button class="btn" id="freeze-btn" onclick="handleToggleFreeze()">Freeze</button>
+                        <span class="badge" id="status-badge">Caricamento</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flowers Grid -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Fiori dell'Utente</h2>
+                    <span id="flowers-count" style="color: var(--text-muted);">0 fiori</span>
+                </div>
+                <div class="card-body">
+                    <div class="flower-grid" id="flower-grid">
+                        <div class="loading">Caricamento fiori...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs: History -->
+            <div style="display: flex; gap: 0; margin-bottom: var(--space-lg); border-bottom: 1px solid var(--border);">
+                <button class="tab-btn active" data-tab="transactions">Transazioni</button>
+                <button class="tab-btn" data-tab="events">Eventi Partecipati</button>
+            </div>
+
+            <!-- Transactions Tab -->
+            <div class="card tab-content" id="transactions-tab">
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Tipo</th>
+                                <th>Quantità</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-table">
+                            <tr>
+                                <td colspan="4" class="loading">Caricamento...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Events Tab -->
+            <div class="card tab-content hidden" id="events-tab">
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Data</th>
+                                <th>Stato</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table">
+                            <tr>
+                                <td colspan="3" class="loading">Caricamento...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .tab-btn {
+            padding: var(--space-sm) var(--space-lg);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: var(--text-sm);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+        }
+
+        .tab-btn.active {
+            color: var(--text);
+            border-bottom-color: var(--metal-mid);
+        }
+
+        .tab-content.hidden {
+            display: none;
+        }
+
+        .flower-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            background: var(--bg-black);
+        }
+
+        .flower-card {
+            aspect-ratio: 3/4;
+            background: var(--bg-black);
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .flower-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .flower-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .flower-card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: var(--space-sm);
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.95));
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .flower-card-strikes {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .flower-card-actions {
+            display: flex;
+            gap: var(--space-xs);
+            justify-content: center;
+        }
+
+        .flower-empty {
+            border: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: var(--text-sm);
+        }
+    </style>
+
+    <script src="js/admin.js"></script>
+    <script>
+        let currentUser = null;
+        let userFlowers = [];
+        const userId = admin.getParam('id');
+
+        if (!userId) {
+            admin.navigate('users.html');
+        }
+
+        async function loadProfile() {
+            try {
+                currentUser = await admin.loadUser(userId);
+                if (!currentUser) {
+                    admin.showToast('Utente non trovato', 'error');
+                    admin.navigate('users.html');
+                    return;
+                }
+
+                // Update header
+                document.getElementById('page-title').textContent = currentUser.display_name || 'Utente';
+                document.getElementById('profile-name').textContent = currentUser.display_name || 'Anonimo';
+                document.getElementById('profile-email').textContent = currentUser.email;
+
+                // Avatar
+                const initials = currentUser.display_name
+                    ? currentUser.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                    : '?';
+                document.getElementById('profile-avatar').textContent = initials;
+
+                // Stats
+                document.getElementById('stat-flowers').textContent = currentUser.flower_count || 0;
+                document.getElementById('stat-wilted').textContent = currentUser.wilted_flowers || 0;
+                document.getElementById('stat-events').textContent = currentUser.events_attended || 0;
+                document.getElementById('stat-invites').textContent = currentUser.invites_sent || 0;
+
+                // Status
+                const statusBadge = document.getElementById('status-badge');
+                const freezeBtn = document.getElementById('freeze-btn');
+                if (currentUser.is_frozen) {
+                    statusBadge.className = 'badge badge-danger';
+                    statusBadge.textContent = 'Frozen';
+                    freezeBtn.textContent = 'Sblocca';
+                    freezeBtn.classList.remove('btn-danger');
+                } else {
+                    statusBadge.className = 'badge badge-success';
+                    statusBadge.textContent = 'Attivo';
+                    freezeBtn.textContent = 'Freeze';
+                    freezeBtn.classList.add('btn-danger');
+                }
+
+                // Load flowers
+                await loadFlowers();
+
+                // Load transactions
+                await loadTransactions();
+
+                // Load events
+                await loadEvents();
+
+            } catch (err) {
+                console.error(err);
+                admin.showToast('Errore nel caricamento', 'error');
+            }
+        }
+
+        async function loadFlowers() {
+            userFlowers = await admin.loadUserFlowers(userId);
+            renderFlowers();
+        }
+
+        function renderFlowers() {
+            const grid = document.getElementById('flower-grid');
+            const total = userFlowers.length;
+            document.getElementById('flowers-count').textContent = `${total} fiori`;
+
+            if (total === 0) {
+                grid.innerHTML = `
+                    <div class="flower-empty" style="grid-column: span 4;">
+                        Nessun fiore
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = userFlowers.map((flower, index) => {
+                const strikes = flower.strikes || 0;
+                const imagePath = admin.getFlowerImage(strikes);
+                const isRealFlower = !flower.id.startsWith('active-') && !flower.id.startsWith('wilted-');
+
+                return `
+                    <div class="flower-card">
+                        <img src="${imagePath}" alt="Fiore ${index + 1}">
+                        <div class="flower-card-overlay">
+                            <div class="flower-card-strikes">
+                                ${strikes}/3 strike${flower.is_wilted ? ' (morto)' : ''}
+                            </div>
+                            <div class="flower-card-actions">
+                                ${isRealFlower ? `
+                                    <button class="btn btn-sm" onclick="handleAddStrike('${flower.id}')" ${strikes >= 3 ? 'disabled' : ''}>+ Strike</button>
+                                    <button class="btn btn-sm" onclick="handleRemoveStrike('${flower.id}')" ${strikes <= 0 ? 'disabled' : ''}>- Strike</button>
+                                ` : `
+                                    <span style="font-size: var(--text-xs); opacity: 0.5;">Placeholder</span>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadTransactions() {
+            const transactions = await admin.loadUserTransactions(userId);
+            document.getElementById('transactions-table').innerHTML = transactions.map(t => `
+                <tr>
+                    <td>${admin.formatDate(t.created_at)}</td>
+                    <td>${t.transaction_type}</td>
+                    <td style="color: ${t.amount > 0 ? 'var(--success)' : 'var(--danger)'}">
+                        ${t.amount > 0 ? '+' : ''}${t.amount}
+                    </td>
+                    <td style="color: var(--text-muted)">${t.notes || '—'}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="empty-state">Nessuna transazione</td></tr>';
+        }
+
+        async function loadEvents() {
+            const participations = await admin.loadUserParticipations(userId);
+            document.getElementById('events-table').innerHTML = participations.map(p => `
+                <tr class="clickable" onclick="admin.navigate('event-detail.html', {id: '${p.event_id}'})">
+                    <td>${p.events?.title || 'Evento'}</td>
+                    <td>${admin.formatDate(p.events?.event_date)}</td>
+                    <td>
+                        <span class="badge ${p.status === 'attended' ? 'badge-success' : p.status === 'declined' ? 'badge-danger' : 'badge-warning'}">
+                            ${p.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="3" class="empty-state">Nessun evento</td></tr>';
+        }
+
+        async function handleAddFlower() {
+            await admin.addFlower(userId);
+            loadProfile();
+        }
+
+        async function handleToggleFreeze() {
+            await admin.toggleFreeze(userId, currentUser.is_frozen);
+            loadProfile();
+        }
+
+        async function handleAddStrike(flowerId) {
+            await admin.addStrike(flowerId);
+            loadFlowers();
+        }
+
+        async function handleRemoveStrike(flowerId) {
+            await admin.removeStrike(flowerId);
+            loadFlowers();
+        }
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + '-tab').classList.remove('hidden');
+            });
+        });
+
+        loadProfile();
+    </script>
+</body>
+
+</html>

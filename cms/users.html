@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utenti - Fiori Oscuri Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri"
+                    class="sidebar-logo">
+                <span class="sidebar-title">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">◈</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="users.html" class="sidebar-link active">
+                    <span class="sidebar-link-icon">☾</span>
+                    <span>Utenti</span>
+                </a>
+                <a href="events.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">✦</span>
+                    <span>Eventi</span>
+                </a>
+                <a href="flowers.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">❀</span>
+                    <span>Fiori</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../index.html">← Torna al sito</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Utenti</h1>
+                    <p class="page-subtitle">Gestisci tutti gli utenti della piattaforma</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="search" placeholder="🔍 Cerca...">
+                    </div>
+                    <button class="btn-add" onclick="openCreateModal()" title="Nuovo Utente">
+                        <span>+</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filters -->
+            <div class="filters-bar">
+                <button class="filter-btn active" data-filter="all">Tutti</button>
+                <button class="filter-btn" data-filter="active">Attivi</button>
+                <button class="filter-btn" data-filter="frozen">Frozen</button>
+                <button class="filter-btn" data-filter="flowers">Con Fiori</button>
+            </div>
+
+            <!-- Users Table -->
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Utente</th>
+                            <th>Fiori</th>
+                            <th>Inviti</th>
+                            <th>Eventi</th>
+                            <th>Stato</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table">
+                        <tr>
+                            <td colspan="6" class="loading-cell">Caricamento...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Crea/Modifica Utente -->
+    <div class="modal-overlay" id="user-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Nuovo Utente</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="user-id">
+
+                <div class="form-group">
+                    <label class="form-label">Nome *</label>
+                    <input type="text" class="form-input" id="display-name" required
+                        placeholder="Come vuole essere chiamato">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefono</label>
+                    <div class="phone-row">
+                        <select class="form-input phone-prefix" id="phone-prefix">
+                            <option value="+39">🇮🇹 +39</option>
+                            <option value="+34">🇪🇸 +34</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+41">🇨🇭 +41</option>
+                        </select>
+                        <input type="tel" class="form-input" id="phone" placeholder="333 123 4567">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Città</label>
+                    <select class="form-input" id="city">
+                        <option value="">Non specificata</option>
+                        <option value="milano">Milano</option>
+                        <option value="roma">Roma</option>
+                        <option value="madrid">Madrid</option>
+                        <option value="londra">Londra</option>
+                        <option value="torino">Torino</option>
+                        <option value="firenze">Firenze</option>
+                        <option value="napoli">Napoli</option>
+                        <option value="barcellona">Barcellona</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Instagram</label>
+                    <input type="text" class="form-input" id="instagram" placeholder="@username">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal()">Annulla</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Crea Utente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        let allUsers = [];
+        let currentFilter = 'all';
+        let editingUserId = null;
+
+        async function loadData(search = '') {
+            try {
+                allUsers = await admin.loadUsers(search);
+                renderUsers();
+            } catch (err) {
+                console.error(err);
+                admin.showToast('Errore nel caricamento', 'error');
+            }
+        }
+
+        function renderUsers() {
+            const table = document.getElementById('users-table');
+            let filtered = allUsers;
+
+            if (currentFilter === 'active') {
+                filtered = allUsers.filter(u => !u.is_frozen);
+            } else if (currentFilter === 'frozen') {
+                filtered = allUsers.filter(u => u.is_frozen);
+            } else if (currentFilter === 'flowers') {
+                filtered = allUsers.filter(u => (u.flower_count || 0) > 0);
+            }
+
+            if (filtered.length === 0) {
+                table.innerHTML = '<tr><td colspan="6" class="empty-cell">Nessun utente trovato</td></tr>';
+                return;
+            }
+
+            table.innerHTML = filtered.map(u => `
+                <tr class="clickable-row" onclick="goToUser('${u.id}')">
+                    <td>
+                        <div class="user-cell">
+                            <span class="user-name">${u.display_name || 'Anonimo'}</span>
+                            <span class="user-phone">${u.phone || ''}</span>
+                            ${u.invite_code ? `<span class="user-code">${u.invite_code}</span>` : ''}
+                        </div>
+                    </td>
+                    <td><span class="flower-badge">${u.flower_count || 0}</span></td>
+                    <td>${u.invites_sent || 0}</td>
+                    <td>${u.events_attended || 0}</td>
+                    <td>
+                        <span class="status-badge ${u.is_frozen ? 'status-frozen' : 'status-active'}">
+                            ${u.is_frozen ? 'Frozen' : 'Attivo'}
+                        </span>
+                    </td>
+                    <td class="actions-cell">
+                        <button class="action-btn" onclick="event.stopPropagation(); openEditModal('${u.id}')" title="Modifica">✎</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); quickAddFlower('${u.id}')" title="Aggiungi Fiore">🌹</button>
+                        <button class="action-btn" onclick="event.stopPropagation(); quickToggleFreeze('${u.id}', ${u.is_frozen})" title="${u.is_frozen ? 'Sblocca' : 'Freeze'}">
+                            ${u.is_frozen ? '✓' : '❄'}
+                        </button>
+                        <button class="action-btn action-danger" onclick="event.stopPropagation(); deleteUser('${u.id}', '${u.display_name}')" title="Elimina">✕</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function goToUser(userId) {
+            admin.navigate('user-detail.html', { id: userId });
+        }
+
+        // Modal Functions
+        function openCreateModal() {
+            editingUserId = null;
+            document.getElementById('modal-title').textContent = 'Nuovo Utente';
+            document.getElementById('submit-btn').textContent = 'Crea Utente';
+            document.getElementById('user-form').reset();
+            document.getElementById('user-id').value = '';
+            document.getElementById('user-modal').classList.add('show');
+        }
+
+        async function openEditModal(userId) {
+            editingUserId = userId;
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+
+            document.getElementById('modal-title').textContent = 'Modifica Utente';
+            document.getElementById('submit-btn').textContent = 'Salva Modifiche';
+            document.getElementById('user-id').value = userId;
+            document.getElementById('display-name').value = user.display_name || '';
+
+            // Parse phone
+            if (user.phone) {
+                const prefixes = ['+39', '+34', '+44', '+1', '+33', '+49', '+41'];
+                let matchedPrefix = '+39';
+                let phoneNumber = user.phone;
+
+                for (const prefix of prefixes) {
+                    if (user.phone.startsWith(prefix)) {
+                        matchedPrefix = prefix;
+                        phoneNumber = user.phone.substring(prefix.length);
+                        break;
+                    }
+                }
+                document.getElementById('phone-prefix').value = matchedPrefix;
+                document.getElementById('phone').value = phoneNumber;
+            } else {
+                document.getElementById('phone').value = '';
+            }
+
+            document.getElementById('city').value = user.city || '';
+            document.getElementById('instagram').value = user.instagram_username || '';
+
+            document.getElementById('user-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('user-modal').classList.remove('show');
+            editingUserId = null;
+        }
+
+        // Form Submit
+        document.getElementById('user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Salvataggio...';
+            btn.disabled = true;
+
+            try {
+                const prefix = document.getElementById('phone-prefix').value;
+                const phoneNum = document.getElementById('phone').value.replace(/\s/g, '');
+                const fullPhone = phoneNum ? prefix + phoneNum : null;
+
+                const userData = {
+                    display_name: document.getElementById('display-name').value,
+                    phone: fullPhone,
+                    city: document.getElementById('city').value || null,
+                    instagram_username: document.getElementById('instagram').value.replace('@', '') || null
+                };
+
+                if (editingUserId) {
+                    // Update existing user
+                    await admin.updateUser(editingUserId, userData);
+                    admin.showToast('Utente aggiornato!');
+                } else {
+                    // Create new user
+                    await admin.createUser(userData);
+                }
+
+                closeModal();
+                loadData(document.getElementById('search').value);
+
+            } catch (err) {
+                console.error(err);
+                admin.showToast(err.message || 'Errore', 'error');
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        async function quickAddFlower(userId) {
+            await admin.addFlower(userId);
+            loadData(document.getElementById('search').value);
+        }
+
+        async function quickToggleFreeze(userId, currentStatus) {
+            await admin.toggleFreeze(userId, currentStatus);
+            loadData(document.getElementById('search').value);
+        }
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Eliminare ${userName}? Azione irreversibile.`)) return;
+            try {
+                await admin.deleteUser(userId);
+                loadData();
+            } catch (err) {
+                console.error(err);
+                admin.showToast('Errore', 'error');
+            }
+        }
+
+        // Search
+        let searchTimeout;
+        document.getElementById('search').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => loadData(e.target.value), 300);
+        });
+
+        // Filters
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderUsers();
+            });
+        });
+
+        // Close modal on overlay click
+        document.getElementById('user-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'user-modal') closeModal();
+        });
+
+        // Close modal on ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        loadData();
+    </script>
+
+    <style>
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .btn-add {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--metal-mid);
+            background: transparent;
+            color: var(--text);
+            font-size: 1.75rem;
+            font-weight: 300;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-add:hover {
+            background: var(--metal-mid);
+            color: var(--bg-black);
+            transform: scale(1.05);
+        }
+
+        .btn-add span {
+            line-height: 1;
+            margin-top: -2px;
+        }
+
+        .filters-bar {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+
+        .filter-btn {
+            padding: var(--space-xs) var(--space-md);
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--metal-mid);
+            color: var(--text);
+        }
+
+        .user-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .user-phone {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+
+        .user-code {
+            font-size: 10px;
+            font-family: monospace;
+            color: var(--metal-mid);
+            opacity: 0.7;
+        }
+
+        .flower-badge {
+            display: inline-block;
+            min-width: 24px;
+            padding: 2px 8px;
+            background: rgba(136, 136, 136, 0.15);
+            text-align: center;
+            color: var(--text);
+        }
+
+        .status-badge {
+            padding: 2px 10px;
+            font-size: var(--text-xs);
+            border: 1px solid;
+        }
+
+        .status-active {
+            background: rgba(60, 120, 60, 0.2);
+            border-color: var(--success);
+            color: #6a6;
+        }
+
+        .status-frozen {
+            background: rgba(139, 58, 58, 0.2);
+            border-color: var(--danger);
+            color: #c88;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border);
+            background: transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--metal-mid);
+            color: var(--text);
+        }
+
+        .action-danger:hover {
+            border-color: var(--danger);
+            background: rgba(139, 58, 58, 0.2);
+            color: #c88;
+        }
+
+        .clickable-row {
+            cursor: pointer;
+        }
+
+        .clickable-row:hover td {
+            background: var(--bg-medium);
+        }
+
+        .empty-cell,
+        .loading-cell {
+            text-align: center;
+            padding: var(--space-xl);
+            color: var(--text-muted);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: var(--space-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: var(--text-lg);
+            color: var(--text);
+            letter-spacing: 0.08em;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-footer {
+            margin-top: var(--space-lg);
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: var(--space-md);
+            justify-content: flex-end;
+        }
+
+        .phone-row {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .phone-prefix {
+            width: 100px;
+            flex-shrink: 0;
+        }
+    </style>
+</body>
+
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Il manifesto di Fiori Oscuri">
+    <title>Manifesto - Fiori Oscuri</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="rose-icon">🥀</span>
+                <span>Fiori Oscuri</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="eventi.html">Eventi</a></li>
+                <li><a href="manifesto.html" class="active">Manifesto</a></li>
+                <li><a href="contatti.html">Contatti</a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container-narrow">
+            <h1>Manifesto</h1>
+            <p class="page-subtitle">La filosofia di un cerchio intimo</p>
+        </div>
+    </section>
+
+    <!-- Manifesto Content -->
+    <section>
+        <div class="container-narrow manifesto-content">
+
+            <div class="manifesto-section">
+                <h2>Nel Segreto Fiorisce l'Esperienza</h2>
+                <p>
+                    In un mondo dove tutto è pubblico, dove ogni momento è condiviso,
+                    dove l'esposizione è diventata la norma, noi scegliamo il contrario.
+                </p>
+                <p>
+                    Fiori Oscuri è un ritorno all'essenziale: <strong>connessioni autentiche</strong>,
+                    <strong>esperienze irripetibili</strong>, <strong>momenti che vivono solo nella memoria</strong>.
+                </p>
+            </div>
+
+            <div class="manifesto-divider">
+                <span>🥀</span>
+            </div>
+
+            <div class="manifesto-section">
+                <h2>I Nostri Principi</h2>
+
+                <div class="principle">
+                    <h3>Qualità sopra Quantità</h3>
+                    <p>
+                        Ogni evento è curato nei minimi dettagli. Ogni partecipante è scelto con cura.
+                        Non cerchiamo numeri, cerchiamo anime affini.
+                    </p>
+                </div>
+
+                <div class="principle">
+                    <h3>Mistero e Discrezione</h3>
+                    <p>
+                        Ciò che accade durante i nostri eventi appartiene solo a chi c'era.
+                        Non serve documentare tutto. Alcune esperienze vanno vissute, non pubblicate.
+                    </p>
+                </div>
+
+                <div class="principle">
+                    <h3>Presenza e Partecipazione</h3>
+                    <p>
+                        Essere invitati è un privilegio. Partecipare è un dono reciproco.
+                        Ogni presenza conta, ogni assenza lascia un vuoto.
+                    </p>
+                </div>
+
+                <div class="principle">
+                    <h3>L'Estetica dell'Oscuro</h3>
+                    <p>
+                        Ombre e candele, atmosfere rarefatte, conversazioni profonde.
+                        Celebriamo la bellezza di ciò che non è immediato, di ciò che richiede attenzione.
+                    </p>
+                </div>
+            </div>
+
+            <div class="manifesto-divider">
+                <span>🥀</span>
+            </div>
+
+            <div class="manifesto-section">
+                <h2>Il Sistema dei Fiori</h2>
+                <p>
+                    Ogni partecipazione ad un evento ti dona un <strong>fiore nero</strong> 🥀.
+                    È il nostro modo di riconoscere la tua presenza, la tua fedeltà al cerchio.
+                </p>
+                <p>
+                    Ma attenzione: ogni assenza ingiustificata, ogni "bail" dell'ultimo momento,
+                    fa appassire i tuoi fiori. <em>Dieci assenze equivalgono alla perdita di un fiore</em>.
+                </p>
+                <p style="font-style: italic; margin-top: var(--spacing-md);">
+                    Non è un gioco, è un patto. La tua parola conta. La tua presenza vale.
+                </p>
+            </div>
+
+            <div class="manifesto-divider">
+                <span>🥀</span>
+            </div>
+
+            <div class="manifesto-section">
+                <h2>Solo su Invito</h2>
+                <p>
+                    Fiori Oscuri non è per tutti. Non perché siamo esclusivi per snobismo,
+                    ma perché crediamo che le esperienze più preziose richiedano
+                    <strong>affinità</strong>, <strong>rispetto</strong>, e <strong>discrezione</strong>.
+                </p>
+                <p>
+                    Se sei qui, sei stato scelto. Se resti, è perché hai scelto di esserci veramente.
+                </p>
+            </div>
+
+            <div class="cta-section">
+                <p style="font-size: 1.3rem; font-style: italic; text-align: center; margin-top: var(--spacing-xl);">
+                    Benvenuto tra le ombre.<br>
+                    Qui fiorisce l'esperienza.
+                </p>
+                <div style="text-align: center; margin-top: var(--spacing-lg);">
+                    <a href="eventi.html" class="btn">Scopri i Prossimi Eventi</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Fiori Oscuri &mdash; Since 2026</p>
+            <p style="font-size: 0.8rem; margin-top: var(--spacing-sm);">
+                Solo su invito · Milano
+            </p>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Mobile menu toggle
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        navToggle?.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        });
+
+        // Fade in sections on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.manifesto-section, .principle').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+
+</body>
+
+</html>

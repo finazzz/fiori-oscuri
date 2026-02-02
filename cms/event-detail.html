@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Evento - Fiori Oscuri Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri"
+                    class="sidebar-logo">
+                <span class="sidebar-title">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">◈</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="users.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">☾</span>
+                    <span>Utenti</span>
+                </a>
+                <a href="events.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">✦</span>
+                    <span>Eventi</span>
+                </a>
+                <a href="flowers.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">❀</span>
+                    <span>Fiori</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../index.html">← Torna al sito</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <a href="events.html" style="color: var(--text-muted); font-size: var(--text-sm);">← Torna agli
+                        eventi</a>
+                    <h1 class="page-title" id="page-title">Caricamento...</h1>
+                </div>
+            </header>
+
+            <!-- Event Info -->
+            <div class="stats-grid" style="margin-bottom: var(--space-lg);">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-date">—</div>
+                    <div class="stat-label">Data</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-participants">0</div>
+                    <div class="stat-label">Partecipanti</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-attended">0</div>
+                    <div class="stat-label">Presenti</div>
+                </div>
+            </div>
+
+            <!-- Event Details -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Dettagli Evento</h2>
+                </div>
+                <div class="card-body padded">
+                    <p><strong>Location:</strong> <span id="event-location">—</span></p>
+                    <p style="margin-top: var(--space-sm);"><strong>Descrizione:</strong></p>
+                    <p id="event-description" style="color: var(--text-muted);">—</p>
+                </div>
+            </div>
+
+            <!-- Participants -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Partecipanti</h2>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Utente</th>
+                                <th>Stato RSVP</th>
+                                <th>Data RSVP</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participants-table">
+                            <tr>
+                                <td colspan="4" class="loading">Caricamento...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        const eventId = admin.getParam('id');
+        let currentEvent = null;
+
+        if (!eventId) {
+            admin.navigate('events.html');
+        }
+
+        async function loadEvent() {
+            try {
+                currentEvent = await admin.loadEvent(eventId);
+                if (!currentEvent) {
+                    admin.showToast('Evento non trovato', 'error');
+                    admin.navigate('events.html');
+                    return;
+                }
+
+                document.getElementById('page-title').textContent = currentEvent.title;
+                document.getElementById('stat-date').textContent = admin.formatShortDate(currentEvent.event_date);
+                document.getElementById('event-location').textContent = currentEvent.location;
+                document.getElementById('event-description').textContent = currentEvent.description || 'Nessuna descrizione';
+
+                await loadParticipants();
+
+            } catch (err) {
+                console.error(err);
+                admin.showToast('Errore nel caricamento', 'error');
+            }
+        }
+
+        async function loadParticipants() {
+            const participations = await admin.loadParticipations(eventId);
+
+            const attended = participations.filter(p => p.status === 'attended').length;
+            document.getElementById('stat-participants').textContent = participations.length;
+            document.getElementById('stat-attended').textContent = attended;
+
+            document.getElementById('participants-table').innerHTML = participations.map(p => `
+                <tr class="clickable" onclick="admin.navigate('user-detail.html', {id: '${p.user_id}'})">
+                    <td>
+                        <div class="user-info">
+                            <span class="user-name">${p.profiles?.display_name || 'Utente'}</span>
+                            <span class="user-email">${p.profiles?.email || ''}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge ${getStatusBadge(p.status)}">
+                            ${p.status}
+                        </span>
+                    </td>
+                    <td>${admin.formatDate(p.rsvp_date)}</td>
+                    <td>
+                        <button class="btn btn-sm" onclick="event.stopPropagation(); markAttended('${p.id}')">
+                            ✓ Presente
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); markNoShow('${p.id}', '${p.user_id}')">
+                            ✗ No-show
+                        </button>
+                    </td>
+                </tr>
+            `).join('') || '<tr><td colspan="4" class="empty-state">Nessun partecipante</td></tr>';
+        }
+
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'attended': return 'badge-success';
+                case 'no_show': return 'badge-danger';
+                case 'declined': return 'badge-muted';
+                default: return 'badge-warning';
+            }
+        }
+
+        async function markAttended(participationId) {
+            await admin.sb.from('participations').update({
+                status: 'attended',
+                attended_date: new Date().toISOString()
+            }).eq('id', participationId);
+
+            admin.showToast('Segnato come presente');
+            loadParticipants();
+        }
+
+        async function markNoShow(participationId, userId) {
+            // Update participation
+            await admin.sb.from('participations').update({
+                status: 'no_show'
+            }).eq('id', participationId);
+
+            // Add strike to user's oldest flower
+            const { data: profile } = await admin.sb.from('profiles')
+                .select('bails_count')
+                .eq('id', userId)
+                .single();
+
+            await admin.sb.from('profiles').update({
+                bails_count: (profile?.bails_count || 0) + 1
+            }).eq('id', userId);
+
+            admin.showToast('Segnato come no-show, bail count aumentato');
+            loadParticipants();
+        }
+
+        loadEvent();
+    </script>
+</body>
+
+</html>

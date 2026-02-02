@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fiori Oscuri - Un'esperienza intima e misteriosa">
+  <title>Fiori Oscuri</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+
+  <!-- Navigation -->
+  <nav class="main-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="rose-icon">🥀</span>
+        <span>Fiori Oscuri</span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="eventi.html">Eventi</a></li>
+        <li><a href="manifesto.html">Manifesto</a></li>
+        <li><a href="contatti.html">Contatti</a></li>
+      </ul>
+      <button class="nav-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Nel Segreto<br>Fiorisce l'Esperienza</h1>
+      <p class="hero-tagline">
+        Dove le ombre danzano con la luce delle candele,<br>
+        e ogni incontro è un rituale condiviso.
+      </p>
+    </div>
+  </section>
+
+  <!-- Mystery Section -->
+  <section>
+    <div class="container-narrow">
+      <p style="font-size: 1.3rem; line-height: 2; text-align: center; font-style: italic;">
+        Fiori Oscuri è un cerchio intimo,<br>
+        uno spazio dove anime affini si riuniscono<br>
+        in cene ed eventi privati, riservati a chi è stato scelto.
+      </p>
+      <p style="text-align: center; margin-top: var(--spacing-lg); color: var(--color-text-light);">
+        Ogni presenza è un dono.<br>
+        Ogni assenza lascia un segno.
+      </p>
+    </div>
+  </section>
+
+  <!-- Coming Soon: Perks Section -->
+  <section>
+    <div class="container">
+      <div class="coming-soon">
+        <div class="coming-soon-content">
+          <h2 class="section-title">I Privilegi dei Fiori</h2>
+          <p style="font-size: 1.2rem; margin-bottom: var(--spacing-md);">
+            Ogni partecipazione ti dona un fiore.<br>
+            Ogni assenza lo fa appassire.
+          </p>
+          <ul class="perk-list">
+            <li>Entrate gratuite agli eventi esclusivi</li>
+            <li>Accesso a party privati riservati</li>
+            <li>Sorprese riservate ai più fedeli</li>
+          </ul>
+          <p
+            style="margin-top: var(--spacing-md); font-size: 0.9rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-light);">
+            Coming Soon
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section>
+    <div class="container-narrow">
+      <h3>L'Arte dell'Incontro</h3>
+      <p>
+        In un mondo di rumore, creiamo silenzio.<br>
+        In un mondo di esposizione, coltiviamo il mistero.<br>
+        In un mondo di quantità, celebriamo la qualità.
+      </p>
+      <p style="margin-top: var(--spacing-lg); font-size: 0.95rem; color: var(--color-text-light);">
+        Gli inviti sono personali.<br>
+        Le esperienze sono irripetibili.<br>
+        La partecipazione è un onore.
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>Fiori Oscuri &mdash; Since 2026</p>
+      <p style="font-size: 0.8rem; margin-top: var(--spacing-sm);">
+        Solo su invito · Milano
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+  <script>
+    // Mobile menu toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+
+    navToggle?.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      navToggle.classList.toggle('active');
+    });
+  </script>
+
+</body>
+
+</html>

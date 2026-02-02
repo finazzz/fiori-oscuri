@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Event - Fiori Oscuri</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="is-preload">
+    <div id="bg"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="navbar-logo">
+                <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri">
+                <span>Fiori Oscuri</span>
+            </a>
+
+            <ul class="navbar-links">
+                <li><a href="manifesto.html">Manifesto</a></li>
+                <li><a href="events.html" class="active">Next Event</a></li>
+                <li><a href="account.html">Account</a></li>
+            </ul>
+
+            <div class="burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <a href="manifesto.html">Manifesto</a>
+        <a href="events.html">Next Event</a>
+        <a href="account.html">Account</a>
+    </div>
+
+    <main class="page">
+        <div class="next-event-container">
+            <div class="next-event-minimal">
+                <div class="question-mark">?</div>
+                <div class="event-date">13 Febbraio 2026</div>
+                <div class="event-city">Milano</div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .next-event-container {
+            min-height: calc(100vh - 100px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+        }
+
+        .next-event-minimal {
+            text-align: center;
+        }
+
+        .question-mark {
+            font-family: var(--font-display);
+            font-size: 8rem;
+            font-weight: 300;
+            color: var(--metal-mid);
+            line-height: 1;
+            margin-bottom: var(--space-lg);
+            opacity: 0.6;
+        }
+
+        .event-date {
+            font-family: var(--font-display);
+            font-size: var(--text-xl);
+            letter-spacing: 0.2em;
+            color: var(--text);
+            margin-bottom: var(--space-sm);
+        }
+
+        .event-city {
+            font-family: var(--font-body);
+            font-size: var(--text-base);
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+    </style>
+
+    <script>
+        window.addEventListener('load', () => document.body.classList.remove('is-preload'));
+
+        // Burger menu
+        const burger = document.querySelector('.burger');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        if (burger && mobileMenu) {
+            burger.addEventListener('click', () => {
+                burger.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+
+</html>

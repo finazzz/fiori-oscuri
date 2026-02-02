@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Tuo Profilo - Fiori Oscuri</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="is-preload">
+    <!-- Animated Background -->
+    <div id="bg"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="navbar-logo">
+                <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri">
+                <span>Fiori Oscuri</span>
+            </a>
+
+            <ul class="navbar-links">
+                <li><a href="manifesto.html">Manifesto</a></li>
+                <li><a href="events.html">Next Event</a></li>
+                <li><a href="account.html" class="active">Account</a></li>
+            </ul>
+
+            <a href="account.html" class="navbar-profile" title="Il tuo profilo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+            </a>
+
+            <div class="burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+        <a href="manifesto.html">Manifesto</a>
+        <a href="events.html">Next Event</a>
+        <a href="account.html">Account</a>
+    </div>
+
+    <main class="page">
+        <!-- Loading State -->
+        <div id="loading-state" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Caricamento profilo...</p>
+        </div>
+
+        <!-- Profile Content -->
+        <div id="profile-content" class="hidden">
+            <!-- Instagram-style Header -->
+            <div class="profile-header">
+                <div class="profile-avatar" id="profile-avatar">?</div>
+
+                <div class="profile-content">
+                    <h1 class="profile-name" id="profile-name">Caricamento...</h1>
+                    <p class="profile-bio" id="profile-city" style="margin-bottom: var(--space-xs);"></p>
+                    <p class="profile-bio text-muted" id="profile-phone" style="font-size: var(--text-xs);"></p>
+
+                    <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-md);">
+                        <button class="btn" id="invite-btn" disabled>Invita un Amico</button>
+                        <button class="btn" onclick="location.reload()">Aggiorna</button>
+                        <button class="btn" onclick="signOut()">Esci</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats (Instagram-style) -->
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="stat-flowers">0</div>
+                    <div class="profile-stat-label">Fiori</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="stat-events">0</div>
+                    <div class="profile-stat-label">Eventi</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value" id="stat-invites">0</div>
+                    <div class="profile-stat-label">Inviti</div>
+                </div>
+            </div>
+
+            <!-- Flower Grid (3:4 ratio like Instagram) -->
+            <div class="flower-grid" id="flower-grid">
+                <!-- Flowers will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Not Logged In State -->
+        <div id="not-logged-in" class="hidden text-center" style="padding: var(--space-xxl);">
+            <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri"
+                style="width: 100px; margin: 0 auto var(--space-lg); opacity: 0.6;">
+            <h2 style="margin-bottom: var(--space-md); font-family: var(--font-display); letter-spacing: 0.1em;">Accedi
+                al Tuo Profilo</h2>
+            <p class="text-muted mb-lg">Effettua l'accesso per vedere i tuoi fiori e le tue statistiche.</p>
+            <a href="login.html" class="btn btn-primary">Accedi</a>
+        </div>
+    </main>
+
+    <!-- Invite Modal -->
+    <div id="invite-modal" class="modal-overlay">
+        <div class="auth-card" style="max-width: 450px;">
+            <h2 style="color: var(--gold); margin-bottom: var(--space-lg);">Il Tuo Codice Invito</h2>
+
+            <p class="text-muted mb-lg">Condividi questo codice con un amico. Quando si registrerà, ti verrà scalato 1
+                fiore.</p>
+
+            <div class="invite-code-display"
+                style="background: rgba(255,255,255,0.05); padding: var(--space-lg); border-radius: var(--radius-md); text-align: center; margin-bottom: var(--space-lg);">
+                <span id="user-invite-code"
+                    style="font-size: var(--text-xl); font-family: var(--font-display); letter-spacing: 0.2em; color: var(--gold);">------</span>
+            </div>
+
+            <div style="display: flex; gap: var(--space-md);">
+                <button class="btn btn-primary" onclick="copyInviteCode()">Copia Codice</button>
+                <button class="btn" onclick="shareInvite()">Condividi</button>
+                <button class="btn" onclick="closeInviteModal()">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-lg);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+    </style>
+
+    <script src="js/app.js"></script>
+    <script>
+        window.addEventListener('load', function () {
+            document.body.classList.remove('is-preload');
+        });
+
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        let profileData = null;
+
+        // Normalize phone number - always with + prefix
+        function normalizePhone(phone) {
+            if (!phone) return null;
+            phone = phone.replace(/\s/g, '');
+            if (!phone.startsWith('+')) {
+                phone = '+' + phone;
+            }
+            return phone;
+        }
+
+        async function loadProfile() {
+            // Wait for auth to initialize
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const { data: { session } } = await sb.auth.getSession();
+
+            if (!session) {
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('not-logged-in').classList.remove('hidden');
+                return;
+            }
+
+            const userPhone = normalizePhone(session.user.phone);
+
+            // Fetch profile by ID first
+            let { data: profile, error } = await sb
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            // If no profile by ID, try by phone (might be manual creation with different ID)
+            if (error || !profile) {
+                if (userPhone) {
+                    const { data: phoneProfile } = await sb
+                        .from('profiles')
+                        .select('*')
+                        .eq('phone', userPhone)
+                        .single();
+
+                    if (phoneProfile) {
+                        // Found by phone - update ID to match auth user
+                        const { error: updateError } = await sb
+                            .from('profiles')
+                            .update({ id: session.user.id })
+                            .eq('id', phoneProfile.id);
+
+                        if (!updateError) {
+                            profile = { ...phoneProfile, id: session.user.id };
+                        } else {
+                            profile = phoneProfile;
+                        }
+                    }
+                }
+            }
+
+            // Still no profile? User shouldn't create here - they should complete registration first
+            if (!profile) {
+                console.log('No profile found - redirecting to complete registration');
+                // Show profile with basic info from session instead of redirecting to login
+                profile = {
+                    id: session.user.id,
+                    phone: userPhone,
+                    display_name: session.user.user_metadata?.display_name || 'Membro',
+                    flower_count: 0,
+                    events_attended: 0,
+                    invites_sent: 0,
+                    invite_code: null
+                };
+            }
+
+            profileData = profile;
+            renderProfile(profile);
+        }
+
+        function renderProfile(profile) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('profile-content').classList.remove('hidden');
+
+            // Avatar
+            const initials = profile.display_name
+                ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : '?';
+            document.getElementById('profile-avatar').textContent = initials;
+
+            // Info
+            document.getElementById('profile-name').textContent = profile.display_name || 'Anonimo';
+
+            // City display with icon
+            const cityNames = {
+                'milano': 'Milano',
+                'roma': 'Roma',
+                'madrid': 'Madrid',
+                'londra': 'Londra'
+            };
+            document.getElementById('profile-city').textContent = cityNames[profile.city] || '';
+            document.getElementById('profile-phone').textContent = profile.phone || '';
+
+            // Stats
+            const flowers = profile.flower_count || 0;
+            document.getElementById('stat-flowers').textContent = flowers;
+            document.getElementById('stat-events').textContent = profile.events_attended || 0;
+            document.getElementById('stat-invites').textContent = profile.invites_sent || 0;
+
+            // Enable invite button if has flowers
+            const inviteBtn = document.getElementById('invite-btn');
+            inviteBtn.disabled = flowers < 1;
+            inviteBtn.onclick = flowers >= 1 ? openInviteModal : null;
+
+            // Render flower grid
+            renderFlowerGrid(flowers, profile.wilted_flowers || 0);
+        }
+
+        function renderFlowerGrid(active, wilted) {
+            const grid = document.getElementById('flower-grid');
+            grid.innerHTML = '';
+
+            // Load flowers from database with their status
+            loadFlowersFromDB().then(flowers => {
+                if (flowers.length === 0 && active === 0 && wilted === 0) {
+                    // Empty - no flowers to show
+                    return;
+                }
+
+                // Render each flower with appropriate image based on strikes
+                flowers.forEach((flower, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flower-item' + (flower.is_wilted ? ' wilted' : '');
+
+                    // Select image based on strikes
+                    let imagePath;
+                    const strikes = flower.strikes || 0;
+
+                    if (flower.is_wilted || strikes >= 3) {
+                        imagePath = 'branding/Use For Website/Fiore morto - 3 strike.png';
+                    } else if (strikes === 2) {
+                        imagePath = 'branding/Use For Website/fiore - 2 strike.png';
+                    } else if (strikes === 1) {
+                        imagePath = 'branding/Use For Website/Fiore - 1 strike.png';
+                    } else {
+                        imagePath = 'branding/Use For Website/Fiore - 0 strike.png';
+                    }
+
+                    item.innerHTML = `
+                        <img src="${imagePath}" alt="Fiore ${index + 1}">
+                        <div class="flower-info">
+                            ${flower.event_name || 'Fiore #' + (index + 1)}
+                            ${strikes > 0 ? '<br><small>' + strikes + ' strike</small>' : ''}
+                        </div>
+                    `;
+                    grid.appendChild(item);
+                });
+
+                // If no flowers from DB, show based on count
+                if (flowers.length === 0) {
+                    for (let i = 0; i < active; i++) {
+                        const item = document.createElement('div');
+                        item.className = 'flower-item';
+                        item.innerHTML = `
+                            <img src="branding/Use For Website/Fiore - 0 strike.png" alt="Fiore ${i + 1}">
+                            <div class="flower-info">Fiore #${i + 1}</div>
+                        `;
+                        grid.appendChild(item);
+                    }
+                    for (let i = 0; i < wilted; i++) {
+                        const item = document.createElement('div');
+                        item.className = 'flower-item wilted';
+                        item.innerHTML = `
+                            <img src="branding/Use For Website/Fiore morto - 3 strike.png" alt="Fiore Morto">
+                            <div class="flower-info">Appassito</div>
+                        `;
+                        grid.appendChild(item);
+                    }
+                }
+            });
+        }
+
+        async function loadFlowersFromDB() {
+            try {
+                const { data: { session } } = await sb.auth.getSession();
+                if (!session) return [];
+
+                const { data: flowers, error } = await sb
+                    .from('flowers')
+                    .select('*, events(title)')
+                    .eq('owner_id', session.user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error || !flowers) return [];
+
+                return flowers.map(f => ({
+                    id: f.id,
+                    strikes: f.strikes || 0,
+                    is_wilted: f.is_wilted || false,
+                    event_name: f.events?.title || null
+                }));
+            } catch (e) {
+                console.error('Error loading flowers:', e);
+                return [];
+            }
+        }
+
+        function openInviteModal() {
+            document.getElementById('invite-modal').classList.add('show');
+            if (profileData?.invite_code) {
+                document.getElementById('user-invite-code').textContent = profileData.invite_code;
+            }
+        }
+
+        function closeInviteModal() {
+            document.getElementById('invite-modal').classList.remove('show');
+        }
+
+        function copyInviteCode() {
+            const code = profileData?.invite_code;
+            if (code) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showMessage('Codice copiato!');
+                }).catch(() => {
+                    // Fallback
+                    const temp = document.createElement('input');
+                    temp.value = code;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(temp);
+                    showMessage('Codice copiato!');
+                });
+            }
+        }
+
+        function shareInvite() {
+            const code = profileData?.invite_code;
+            if (code && navigator.share) {
+                navigator.share({
+                    title: 'Fiori Oscuri - Invito',
+                    text: `Entra in Fiori Oscuri! Usa il mio codice: ${code}`,
+                    url: window.location.origin + '/login.html'
+                });
+            } else {
+                copyInviteCode();
+            }
+        }
+
+        // Init
+        loadProfile();
+    </script>
+</body>
+
+</html>

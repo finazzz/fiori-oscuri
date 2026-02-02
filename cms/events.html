@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventi - Fiori Oscuri Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri"
+                    class="sidebar-logo">
+                <span class="sidebar-title">Admin</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">◈</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="users.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">☾</span>
+                    <span>Utenti</span>
+                </a>
+                <a href="events.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">✦</span>
+                    <span>Eventi</span>
+                </a>
+                <a href="flowers.html" class="sidebar-link">
+                    <span class="sidebar-link-icon">❀</span>
+                    <span>Fiori</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../index.html">← Torna al sito</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div>
+                    <h1 class="page-title">Eventi</h1>
+                    <p class="page-subtitle">Gestisci gli eventi della community</p>
+                </div>
+                <button class="btn btn-primary" onclick="showModal()">+ Nuovo Evento</button>
+            </header>
+
+            <!-- Events Table -->
+            <div class="card">
+                <div class="card-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Data</th>
+                                <th>Location</th>
+                                <th>Partecipanti</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table">
+                            <tr>
+                                <td colspan="5" class="loading">Caricamento...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal-overlay" id="event-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Nuovo Evento</h3>
+            </div>
+            <form id="event-form">
+                <input type="hidden" id="event-id">
+                <div class="form-group">
+                    <label class="form-label">Titolo</label>
+                    <input type="text" class="form-input" id="event-title" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrizione</label>
+                    <textarea class="form-input" id="event-description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="event-location" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data e Ora</label>
+                    <input type="datetime-local" class="form-input" id="event-date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL Immagine (opzionale)</label>
+                    <input type="text" class="form-input" id="event-image">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="closeModal()">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        let allEvents = [];
+
+        async function loadEvents() {
+            try {
+                allEvents = await admin.loadEvents();
+
+                // Get participation counts
+                const { data: participations } = await admin.sb.from('participations').select('event_id');
+                const counts = {};
+                participations?.forEach(p => {
+                    counts[p.event_id] = (counts[p.event_id] || 0) + 1;
+                });
+
+                document.getElementById('events-table').innerHTML = allEvents.map(e => {
+                    const count = counts[e.id] || 0;
+                    const isPast = new Date(e.event_date) < new Date();
+                    return `
+                        <tr class="clickable" onclick="admin.navigate('event-detail.html', {id: '${e.id}'})">
+                            <td>
+                                <strong>${e.title}</strong>
+                                ${isPast ? '<span class="badge badge-muted" style="margin-left: 8px;">Passato</span>' : ''}
+                            </td>
+                            <td>${admin.formatDate(e.event_date)}</td>
+                            <td style="color: var(--text-muted)">${e.location}</td>
+                            <td>${count}</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="event.stopPropagation(); editEvent('${e.id}')">Modifica</button>
+                                <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); handleDelete('${e.id}')">Elimina</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="5" class="empty-state">Nessun evento</td></tr>';
+
+            } catch (err) {
+                console.error(err);
+                admin.showToast('Errore nel caricamento', 'error');
+            }
+        }
+
+        function showModal(eventId = null) {
+            document.getElementById('event-modal').classList.add('show');
+            document.getElementById('event-form').reset();
+            document.getElementById('event-id').value = '';
+            document.getElementById('modal-title').textContent = 'Nuovo Evento';
+        }
+
+        function closeModal() {
+            document.getElementById('event-modal').classList.remove('show');
+        }
+
+        async function editEvent(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            document.getElementById('modal-title').textContent = 'Modifica Evento';
+            document.getElementById('event-id').value = event.id;
+            document.getElementById('event-title').value = event.title;
+            document.getElementById('event-description').value = event.description || '';
+            document.getElementById('event-location').value = event.location;
+            document.getElementById('event-date').value = event.event_date?.slice(0, 16) || '';
+            document.getElementById('event-image').value = event.image_url || '';
+
+            document.getElementById('event-modal').classList.add('show');
+        }
+
+        async function handleDelete(eventId) {
+            const deleted = await admin.deleteEvent(eventId);
+            if (deleted) loadEvents();
+        }
+
+        document.getElementById('event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const id = document.getElementById('event-id').value;
+            const title = document.getElementById('event-title').value;
+            const eventData = {
+                title,
+                description: document.getElementById('event-description').value,
+                location: document.getElementById('event-location').value,
+                event_date: document.getElementById('event-date').value,
+                image_url: document.getElementById('event-image').value || null,
+                shareable_slug: title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+            };
+
+            try {
+                await admin.saveEvent(eventData, id || null);
+                closeModal();
+                loadEvents();
+            } catch (err) {
+                console.error(err);
+                admin.showToast('Errore nel salvataggio', 'error');
+            }
+        });
+
+        loadEvents();
+    </script>
+</body>
+
+</html>

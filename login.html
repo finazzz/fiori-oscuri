@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accedi - Fiori Oscuri</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .phone-input-group {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .phone-prefix {
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .otp-input,
+        .code-input {
+            text-align: center;
+            font-size: var(--text-lg);
+            letter-spacing: 0.3em;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: var(--space-md);
+            color: var(--text-muted);
+            font-size: var(--text-xs);
+            cursor: pointer;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: var(--space-lg) 0;
+            color: var(--text-muted);
+            font-size: var(--text-xs);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--metal-dark);
+        }
+
+        .divider span {
+            padding: 0 var(--space-md);
+        }
+    </style>
+</head>
+
+<body class="is-preload">
+    <div id="bg"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri"
+                    style="width: 80px; height: auto; margin-bottom: var(--space-md);">
+                <h1 id="page-title">Accedi</h1>
+            </div>
+
+            <div id="error-msg" class="alert alert-error hidden"></div>
+            <div id="success-msg" class="alert alert-success hidden"></div>
+
+            <!-- Step 1: Inserisci telefono -->
+            <div id="step-phone" class="step active">
+                <form id="phone-form">
+                    <div class="form-group">
+                        <label class="form-label">Numero di telefono</label>
+                        <div class="phone-input-group">
+                            <select class="form-input phone-prefix" id="phone-prefix">
+                                <option value="+39">🇮🇹 +39</option>
+                                <option value="+34">🇪🇸 +34</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+33">🇫🇷 +33</option>
+                                <option value="+49">🇩🇪 +49</option>
+                                <option value="+41">🇨🇭 +41</option>
+                                <option value="+31">🇳🇱 +31</option>
+                                <option value="+351">🇵🇹 +351</option>
+                            </select>
+                            <input type="tel" class="form-input" id="phone" required placeholder="333 123 4567">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="phone-btn">
+                        Continua
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: Codice invito (solo per nuovi utenti) -->
+            <div id="step-invite" class="step">
+                <span class="back-link" onclick="showStep('phone')">← Cambia numero</span>
+                <p class="text-muted text-center" style="margin-bottom: var(--space-lg);">
+                    Questo numero non è ancora registrato.<br>
+                    Hai un <strong>codice invito</strong>?
+                </p>
+                <form id="invite-form">
+                    <div class="form-group">
+                        <input type="text" class="form-input code-input" id="invite-code" required placeholder="ABC123"
+                            maxlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="invite-btn">
+                        Verifica Codice
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 3: OTP -->
+            <div id="step-otp" class="step">
+                <span class="back-link" onclick="goBack()">← Indietro</span>
+                <p class="text-muted text-center" style="margin-bottom: var(--space-lg);">
+                    Inserisci il codice a 6 cifre inviato a<br>
+                    <strong id="display-phone"></strong>
+                </p>
+                <form id="otp-form">
+                    <div class="form-group">
+                        <input type="text" class="form-input otp-input" id="otp-code" required placeholder="000000"
+                            maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="otp-btn">
+                        Verifica
+                    </button>
+                </form>
+                <p class="text-muted text-center" style="margin-top: var(--space-lg); font-size: var(--text-xs);">
+                    <a href="#" onclick="resendOTP(); return false;">Invia di nuovo</a>
+                </p>
+            </div>
+
+            <!-- Step 4: Registrazione (solo nuovi utenti) -->
+            <div id="step-register" class="step">
+                <p class="text-muted text-center" style="margin-bottom: var(--space-lg);">
+                    Crea il tuo profilo
+                </p>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label class="form-label">Come vuoi essere chiamato?</label>
+                        <input type="text" class="form-input" id="displayName" required placeholder="Il tuo nome">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Città</label>
+                        <select class="form-input" id="city" required>
+                            <option value="" disabled selected>Seleziona</option>
+                            <option value="milano">Milano</option>
+                            <option value="roma">Roma</option>
+                            <option value="madrid">Madrid</option>
+                            <option value="londra">Londra</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Instagram (opzionale)</label>
+                        <input type="text" class="form-input" id="instagram" placeholder="@username">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="register-btn">
+                        Completa Registrazione
+                    </button>
+                </form>
+            </div>
+
+            <p class="text-muted text-center" style="margin-top: var(--space-xl); font-size: var(--text-xs);">
+                <a href="index.html">← Torna alla home</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        window.addEventListener('load', () => document.body.classList.remove('is-preload'));
+
+        let currentPhone = '';
+        let isNewUser = false;
+        let inviterId = null;
+        let previousStep = 'phone';
+
+        function showStep(step) {
+            previousStep = document.querySelector('.step.active')?.id.replace('step-', '') || 'phone';
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+            document.getElementById('error-msg').classList.add('hidden');
+            document.getElementById('success-msg').classList.add('hidden');
+
+            // Update title
+            const titles = { phone: 'Accedi', invite: 'Codice Invito', otp: 'Verifica', register: 'Registrati' };
+            document.getElementById('page-title').textContent = titles[step] || 'Accedi';
+        }
+
+        function goBack() {
+            showStep(isNewUser ? 'invite' : 'phone');
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            document.getElementById('success-msg').classList.add('hidden');
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('success-msg');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            document.getElementById('error-msg').classList.add('hidden');
+        }
+
+        // Step 1: Check phone
+        document.getElementById('phone-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('phone-btn');
+            btn.textContent = 'Verifica...';
+            btn.disabled = true;
+
+            try {
+                const prefix = document.getElementById('phone-prefix').value;
+                const phone = document.getElementById('phone').value.replace(/\s/g, '');
+                currentPhone = prefix + phone;
+
+                // Check if user exists
+                const { data: profile } = await sb
+                    .from('profiles')
+                    .select('id')
+                    .eq('phone', currentPhone)
+                    .single();
+
+                if (profile) {
+                    // Existing user - send OTP directly
+                    isNewUser = false;
+                    await sendOTP();
+                } else {
+                    // New user - ask for invite code
+                    isNewUser = true;
+                    showStep('invite');
+                }
+
+            } catch (err) {
+                showError(err.message || 'Errore');
+            } finally {
+                btn.textContent = 'Continua';
+                btn.disabled = false;
+            }
+        });
+
+        // Step 2: Verify invite code
+        document.getElementById('invite-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('invite-btn');
+            btn.textContent = 'Verifica...';
+            btn.disabled = true;
+
+            try {
+                const code = document.getElementById('invite-code').value.toUpperCase().trim();
+
+                // Find inviter by code
+                const { data: inviter, error: inviterError } = await sb
+                    .from('profiles')
+                    .select('id, display_name, flower_count')
+                    .eq('invite_code', code)
+                    .single();
+
+                if (inviterError || !inviter) {
+                    throw new Error('Codice non valido');
+                }
+
+                if (inviter.flower_count < 1) {
+                    throw new Error('L\'invitante non ha fiori disponibili');
+                }
+
+                // Valid code! Save inviter and send OTP
+                inviterId = inviter.id;
+                showSuccess(`Invitato da ${inviter.display_name}!`);
+
+                await sendOTP();
+
+            } catch (err) {
+                showError(err.message || 'Codice non valido');
+            } finally {
+                btn.textContent = 'Verifica Codice';
+                btn.disabled = false;
+            }
+        });
+
+        async function sendOTP() {
+            const { error } = await sb.auth.signInWithOtp({ phone: currentPhone });
+            if (error) throw error;
+
+            document.getElementById('display-phone').textContent = currentPhone;
+            showStep('otp');
+            showSuccess('Codice inviato!');
+        }
+
+        async function resendOTP() {
+            try {
+                await sendOTP();
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        // Step 3: Verify OTP
+        document.getElementById('otp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('otp-btn');
+            btn.textContent = 'Verifica...';
+            btn.disabled = true;
+
+            try {
+                const otp = document.getElementById('otp-code').value;
+                const { data, error } = await sb.auth.verifyOtp({
+                    phone: currentPhone,
+                    token: otp,
+                    type: 'sms'
+                });
+
+                if (error) throw error;
+
+                if (isNewUser) {
+                    // New user - show registration form
+                    showStep('register');
+                } else {
+                    // Existing user - redirect to account
+                    window.location.href = 'account.html';
+                }
+
+            } catch (err) {
+                showError(err.message || 'Codice non valido');
+            } finally {
+                btn.textContent = 'Verifica';
+                btn.disabled = false;
+            }
+        });
+
+        // Step 4: Complete registration
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('register-btn');
+            btn.textContent = 'Salvataggio...';
+            btn.disabled = true;
+
+            try {
+                const displayName = document.getElementById('displayName').value;
+                const city = document.getElementById('city').value;
+                const instagram = document.getElementById('instagram').value.replace('@', '');
+
+                // Get current user
+                const { data: { user } } = await sb.auth.getUser();
+                if (!user) throw new Error('Sessione scaduta');
+
+                // Update profile with user data
+                const { error: profileError } = await sb
+                    .from('profiles')
+                    .update({
+                        display_name: displayName,
+                        city: city,
+                        instagram_username: instagram || null,
+                        invited_by: inviterId
+                    })
+                    .eq('id', user.id);
+
+                if (profileError) throw profileError;
+
+                // Deduct flower from inviter
+                if (inviterId) {
+                    // Get one of inviter's flowers
+                    const { data: inviterFlower } = await sb
+                        .from('flowers')
+                        .select('id')
+                        .eq('owner_id', inviterId)
+                        .eq('is_wilted', false)
+                        .limit(1)
+                        .single();
+
+                    if (inviterFlower) {
+                        // Delete the flower
+                        await sb.from('flowers').delete().eq('id', inviterFlower.id);
+
+                        // Update inviter's flower count
+                        await sb.from('profiles').update({
+                            flower_count: sb.rpc('decrement', { x: 1 }),
+                            invites_sent: sb.rpc('increment', { x: 1 })
+                        }).eq('id', inviterId);
+
+                        // Or simpler: just decrement
+                        const { data: inviterProfile } = await sb
+                            .from('profiles')
+                            .select('flower_count, invites_sent')
+                            .eq('id', inviterId)
+                            .single();
+
+                        if (inviterProfile) {
+                            await sb.from('profiles').update({
+                                flower_count: Math.max(0, (inviterProfile.flower_count || 1) - 1),
+                                invites_sent: (inviterProfile.invites_sent || 0) + 1
+                            }).eq('id', inviterId);
+                        }
+
+                        // Log transaction
+                        await sb.from('flower_transactions').insert({
+                            from_user_id: inviterId,
+                            to_user_id: user.id,
+                            amount: 1,
+                            transaction_type: 'invite',
+                            notes: `Invito a ${displayName}`
+                        });
+                    }
+                }
+
+                // Redirect to account
+                window.location.href = 'account.html';
+
+            } catch (err) {
+                console.error(err);
+                showError(err.message || 'Errore nella registrazione');
+                btn.textContent = 'Completa Registrazione';
+                btn.disabled = false;
+            }
+        });
+
+        // Check if already logged in
+        (async () => {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session?.user) {
+                // Check if profile exists
+                const { data: profile } = await sb
+                    .from('profiles')
+                    .select('display_name')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile?.display_name && profile.display_name !== 'Nuovo Membro') {
+                    window.location.href = 'account.html';
+                }
+            }
+        })();
+    </script>
+</body>
+
+</html>

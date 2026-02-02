@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Fiori Oscuri CMS</title>
+    <link rel="stylesheet" href="cms-style.css">
+</head>
+
+<body>
+
+    <div class="cms-layout">
+        <!-- Sidebar -->
+        <aside class="cms-sidebar">
+            <div class="cms-logo">
+                <span>🥀</span>
+                <span>Fiori Oscuri</span>
+            </div>
+
+            <nav>
+                <ul class="cms-nav">
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="profiles.html">Profili</a></li>
+                    <li><a href="events.html">Eventi</a></li>
+                    <li><a href="participations.html">Partecipazioni</a></li>
+                    <li><a href="#" id="logout-btn" style="color: var(--cms-danger);">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="cms-main">
+            <div class="cms-header">
+                <h1>Dashboard</h1>
+                <p class="text-muted">Panoramica del sistema Fiori Oscuri</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="cms-stats" id="stats-grid">
+                <div class="cms-stat-card">
+                    <div class="cms-stat-value" id="stat-profiles">-</div>
+                    <div class="cms-stat-label">Profili Totali</div>
+                </div>
+
+                <div class="cms-stat-card">
+                    <div class="cms-stat-value" id="stat-events">-</div>
+                    <div class="cms-stat-label">Eventi Totali</div>
+                </div>
+
+                <div class="cms-stat-card">
+                    <div class="cms-stat-value" id="stat-upcoming">-</div>
+                    <div class="cms-stat-label">Eventi Futuri</div>
+                </div>
+
+                <div class="cms-stat-card">
+                    <div class="cms-stat-value" id="stat-flowers">-</div>
+                    <div class="cms-stat-label">Fiori Totali</div>
+                </div>
+            </div>
+
+            <!-- Recent Profiles -->
+            <div class="cms-card">
+                <h2 class="cms-card-title">Profili Recenti</h2>
+                <table class="cms-table" id="recent-profiles">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Fiori</th>
+                            <th>Balzate</th>
+                            <th>Creato</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Caricamento...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="cms-card">
+                <h2 class="cms-card-title">Prossimi Eventi</h2>
+                <table class="cms-table" id="upcoming-events">
+                    <thead>
+                        <tr>
+                            <th>Titolo</th>
+                            <th>Data</th>
+                            <th>Location</th>
+                            <th>Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Caricamento...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+
+</body>
+
+</html>

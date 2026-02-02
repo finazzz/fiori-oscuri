@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiori Oscuri</title>
+    <meta name="description" content="Un cerchio intimo di esperienze esclusive">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Mysterious landing - only logo visible */
+        .mysterious-landing {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--space-lg);
+        }
+
+        .mysterious-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: var(--space-lg);
+            animation: fadeIn 2s ease;
+        }
+
+        .mysterious-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text);
+            margin-bottom: var(--space-lg);
+            animation: fadeIn 2s ease 0.3s both;
+        }
+
+        .mysterious-enter {
+            animation: fadeIn 2s ease 0.6s both;
+        }
+
+        .mysterious-enter a {
+            font-family: var(--font-display);
+            font-size: var(--text-sm);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            padding: var(--space-sm) var(--space-lg);
+            transition: var(--transition);
+        }
+
+        .mysterious-enter a:hover {
+            color: var(--text);
+            border-color: var(--text-dim);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Hide elements when not logged in */
+        body.guest .navbar-links,
+        body.guest .navbar-flowers,
+        body.guest .burger,
+        body.guest .mobile-menu,
+        body.guest .main-content,
+        body.guest .footer {
+            display: none !important;
+        }
+
+        body.guest .navbar {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        /* Show elements when logged in */
+        body.logged-in .mysterious-landing {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="is-preload guest">
+    <!-- Animated Background -->
+    <div id="bg"></div>
+
+    <!-- Navbar (hidden for guests) -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="navbar-logo">
+                <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri">
+                <span>Fiori Oscuri</span>
+            </a>
+
+            <ul class="navbar-links">
+                <li><a href="manifesto.html">Manifesto</a></li>
+                <li><a href="events.html">Next Event</a></li>
+                <li><a href="account.html">Account</a></li>
+            </ul>
+
+            <a href="account.html" class="navbar-profile hidden" title="Il tuo profilo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+            </a>
+
+            <div class="burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (hidden for guests) -->
+    <div class="mobile-menu">
+        <a href="manifesto.html">Manifesto</a>
+        <a href="events.html">Next Event</a>
+        <a href="account.html">Account</a>
+    </div>
+
+    <!-- Mysterious Landing (guests only) -->
+    <section class="mysterious-landing">
+        <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri" class="mysterious-logo">
+        <h1 class="mysterious-title">Fiori Oscuri</h1>
+        <div class="mysterious-enter">
+            <a href="login.html">Entra</a>
+        </div>
+    </section>
+
+    <!-- Main Content (logged in only) -->
+    <main class="page main-content">
+        <section class="hero">
+            <div class="hero-logo">
+                <img src="branding/Use For Website/logo ufficiale bianco.svg" alt="Fiori Oscuri">
+            </div>
+            <h1>Benvenuto nel Cerchio</h1>
+            <p>Esplora i tuoi fiori, scopri i prossimi eventi e mantieni il tuo impegno.</p>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="container">
+            <div class="divider divider-gold"></div>
+
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-xl);">
+                <a href="manifesto.html" class="card reveal" style="text-decoration: none;">
+                    <h3 class="card-title">Manifesto</h3>
+                    <p class="text-muted">I principi che guidano il nostro cerchio.</p>
+                </a>
+
+                <a href="events.html" class="card reveal" style="text-decoration: none;">
+                    <h3 class="card-title">Prossimo Evento</h3>
+                    <p class="text-muted">Scopri cosa ti aspetta e conferma la tua presenza.</p>
+                </a>
+
+                <a href="account.html" class="card reveal" style="text-decoration: none;">
+                    <h3 class="card-title">Il Tuo Profilo</h3>
+                    <p class="text-muted">Gestisci i tuoi fiori e il tuo stato nel cerchio.</p>
+                </a>
+            </div>
+
+            <div class="divider"></div>
+        </section>
+    </main>
+
+    <!-- Footer (logged in only) -->
+    <footer class="footer">
+        <p>&copy; 2026 Fiori Oscuri. Solo su invito.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Check login status and update body class
+        async function checkAuth() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session?.user) {
+                document.body.classList.remove('guest');
+                document.body.classList.add('logged-in');
+            } else {
+                document.body.classList.add('guest');
+                document.body.classList.remove('logged-in');
+            }
+            document.body.classList.remove('is-preload');
+        }
+
+        checkAuth();
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function () {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+
+</html>

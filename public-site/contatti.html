@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contatta Fiori Oscuri">
+    <title>Contatti - Fiori Oscuri</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="rose-icon">🥀</span>
+                <span>Fiori Oscuri</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="eventi.html">Eventi</a></li>
+                <li><a href="manifesto.html">Manifesto</a></li>
+                <li><a href="contatti.html" class="active">Contatti</a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container-narrow">
+            <h1>Contatti</h1>
+            <p class="page-subtitle">Per richieste e inviti riservati</p>
+        </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section>
+        <div class="container-narrow contact-content">
+
+            <div class="contact-intro">
+                <p style="font-size: 1.2rem; text-align: center; font-style: italic;">
+                    Fiori Oscuri è un cerchio chiuso, accessibile solo su invito.<br>
+                    Se sei interessato a partecipare, contattaci.
+                </p>
+            </div>
+
+            <div class="contact-methods">
+
+                <div class="contact-card">
+                    <div class="contact-icon">✉️</div>
+                    <h3>Email</h3>
+                    <p>
+                        <a href="mailto:info@fioriscuri.com">info@fioriscuri.com</a>
+                    </p>
+                    <p class="contact-description">
+                        Per richieste di invito, collaborazioni, o informazioni generali
+                    </p>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">📱</div>
+                    <h3>Instagram</h3>
+                    <p>
+                        <a href="https://instagram.com/fioriscuri" target="_blank" rel="noopener">@fioriscuri</a>
+                    </p>
+                    <p class="contact-description">
+                        Seguici per rimanere aggiornato (account privato)
+                    </p>
+                </div>
+
+                <div class="contact-card">
+                    <div class="contact-icon">📍</div>
+                    <h3>Location</h3>
+                    <p>Milano, Italia</p>
+                    <p class="contact-description">
+                        Le location degli eventi vengono rivelate solo agli invitati
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="contact-note">
+                <h3>Come Funzionano gli Inviti</h3>
+                <ol class="invite-process">
+                    <li>
+                        <strong>Richiesta</strong><br>
+                        Inviaci una mail presentandoti brevemente e spiegando perché sei interessato a Fiori Oscuri
+                    </li>
+                    <li>
+                        <strong>Valutazione</strong><br>
+                        Esaminiamo ogni richiesta individualmente. Non tutti riceveranno un invito
+                    </li>
+                    <li>
+                        <strong>Invito Personale</strong><br>
+                        Se approvato, riceverai un invito personale al prossimo evento disponibile
+                    </li>
+                    <li>
+                        <strong>Partecipazione</strong><br>
+                        Dopo il primo evento, se l'esperienza è stata reciprocamente positiva, entrerai ufficialmente
+                        nel cerchio
+                    </li>
+                </ol>
+            </div>
+
+            <div class="contact-cta">
+                <div class="cta-box">
+                    <h3>Pronto a Entrare nel Cerchio?</h3>
+                    <p style="margin-bottom: var(--spacing-md);">
+                        Inviaci una richiesta e inizia il tuo viaggio nell'oscurità.
+                    </p>
+                    <a href="mailto:info@fioriscuri.com?subject=Richiesta%20Invito%20Fiori%20Oscuri" class="btn">
+                        Richiedi un Invito
+                    </a>
+                </div>
+            </div>
+
+            <div class="contact-faq">
+                <h3>Domande Frequenti</h3>
+
+                <div class="faq-item">
+                    <h4>Quanto costano gli eventi?</h4>
+                    <p>
+                        Gli eventi sono riservati ai membri. I costi variano in base al tipo di esperienza
+                        e vengono comunicati privatamente agli invitati.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Posso portare ospiti?</h4>
+                    <p>
+                        Solo in occasioni speciali e previa approvazione. Ogni invito è personale e nominativo.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Cosa succede se non posso partecipare?</h4>
+                    <p>
+                        Avvisaci al più presto. Le cancellazioni dell'ultimo momento influenzano negativamente
+                        il tuo standing nel gruppo (vedi il sistema dei Fiori nel nostro Manifesto).
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Che tipo di eventi organizzate?</h4>
+                    <p>
+                        Cene private, degustazioni esclusive, performance artistiche, talks filosofici,
+                        e molto altro. Ogni evento è unico e irripetibile.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Fiori Oscuri &mdash; Since 2026</p>
+            <p style="font-size: 0.8rem; margin-top: var(--spacing-sm);">
+                Solo su invito · Milano
+            </p>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Mobile menu toggle
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        navToggle?.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        });
+    </script>
+
+</body>
+
+</html>

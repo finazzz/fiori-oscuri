@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profili - Fiori Oscuri CMS</title>
+    <link rel="stylesheet" href="cms-style.css">
+</head>
+
+<body>
+
+    <div class="cms-layout">
+        <!-- Sidebar -->
+        <aside class="cms-sidebar">
+            <div class="cms-logo">
+                <span>🥀</span>
+                <span>Fiori Oscuri</span>
+            </div>
+
+            <nav>
+                <ul class="cms-nav">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="profiles.html" class="active">Profili</a></li>
+                    <li><a href="events.html">Eventi</a></li>
+                    <li><a href="participations.html">Partecipazioni</a></li>
+                    <li><a href="#" id="logout-btn" style="color: var(--cms-danger);">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="cms-main">
+            <div class="cms-header">
+                <h1>Gestione Profili</h1>
+                <div class="cms-header-actions">
+                    <button class="cms-btn cms-btn-primary" id="new-profile-btn">+ Nuovo Profilo</button>
+                </div>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <!-- Profiles Table -->
+            <div class="cms-card">
+                <table class="cms-table" id="profiles-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Fiori Netti</th>
+                            <th>Tot. Fiori</th>
+                            <th>Balzate</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">Caricamento...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="cms-modal">
+        <div class="cms-modal-content">
+            <div class="cms-modal-header">
+                <h2 class="cms-modal-title" id="modal-title">Nuovo Profilo</h2>
+                <button class="cms-modal-close" id="close-modal">&times;</button>
+            </div>
+
+            <form id="profile-form">
+                <input type="hidden" id="profile-id">
+
+                <div class="cms-form-group">
+                    <label class="cms-label" for="profile-name">Nome Completo *</label>
+                    <input type="text" id="profile-name" class="cms-input" required>
+                </div>
+
+                <div class="cms-form-group">
+                    <label class="cms-label" for="profile-email">Email *</label>
+                    <input type="email" id="profile-email" class="cms-input" required>
+                </div>
+
+                <div class="cms-form-group">
+                    <label class="cms-label" for="profile-bio">Bio</label>
+                    <textarea id="profile-bio" class="cms-textarea"></textarea>
+                </div>
+
+                <div class="cms-form-group">
+                    <label class="cms-label" for="profile-avatar">Avatar URL</label>
+                    <input type="url" id="profile-avatar" class="cms-input" placeholder="https://...">
+                </div>
+
+                <div style="display: flex; gap: var(--cms-space-md); justify-content: flex-end;">
+                    <button type="button" class="cms-btn cms-btn-secondary" id="cancel-btn">Annulla</button>
+                    <button type="submit" class="cms-btn cms-btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="profiles.js"></script>
+
+</body>
+
+</html>
